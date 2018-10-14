@@ -244,9 +244,7 @@ def minimaxDecision(board, player, depth, maximizingPlayer):
             for x in range(n):
                 if isValidMove(board, player, x, y):
                     newBoard = getBoardCopy(board)
-                    #(boardTemp, totctr) = MakeMove(copy.deepcopy(board), x, y, player)
-                    return minimaxDecision(newBoard, player, depth -1, False)
-                    v = minimaxDecision(newBoard, player, False)
+                    v = minimaxDecision(newBoard, player, depth-1, False)
                     bestValue = max(bestValue, v)
     else:
         bestValue = 1000
