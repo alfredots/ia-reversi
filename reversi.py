@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # Reversi
 import random
 import sys
@@ -211,10 +212,14 @@ def getComputerMove(board, computerTile):
     # Escolhe a jogada que resulta em mais pontos
 #----------------------------------------------	
     bestScore = -1
+    #itera sobre as jogadas possiveís
     for x, y in possibleMoves:
+        #cria cópia do tabuleiro
         dupeBoard = getBoardCopy(board)
+        #faz primeira previsão do tabuleiro ao jogar
         makeMove(dupeBoard, computerTile, x, y)
         #score = getScoreOfBoard(dupeBoard)[computerTile]
+        #chama minmax
         temp = minimaxDecision(dupeBoard, computerTile, 5, True)
         if temp > bestScore:
             bestMove = [x,y]
@@ -243,22 +248,53 @@ def minimaxDecision(board, player, depth, maximizingPlayer):
         for y in range(n):
             for x in range(n):
                 if isValidMove(board, player, x, y):
-                    makeMove(board, player, x, y);
+                    #criar cópia do tabuleiro
                     newBoard = getBoardCopy(board)
+                    #faz previsão de jogada
+                    makeMove(newBoard, player, x, y)
                     #return minimaxDecision(newBoard, player, depth -1, False)
+                    #recursão
                     v = minimaxDecision(newBoard, player, depth -1, False)
+                    #retorna o maior valor
                     bestValue = max(bestValue, v)
     else:
         bestValue = 1000
         for y in range(n):
             for x in range(n):
                 if isValidMove(board, player, x, y):
-                    makeMove(board, player, x, y);
                     newBoard = getBoardCopy(board)
+                    makeMove(newBoard, player, x, y)
                     #return minimaxDecision(newBoard, player, depth -1, True)
                     v = minimaxDecision(newBoard, player, depth -1, True)
+                    #retorna o menor valor
                     bestValue = min(bestValue, v)
     return bestValue
+
+def podaAlphaBeta(board, player, depth, alpha, beta, maximizingPlayer):
+    if depth == 0 or IsTerminalNode(board, player):
+        return getScoreOfBoard(board)[player]
+    if maximizingPlayer:
+        v = minEvalBoard
+        for y in range(n):
+            for x in range(n):
+                if ValidMove(board, x, y, player):
+                    (boardTemp, totctr) = MakeMove(copy.deepcopy(board), x, y, player)
+                    v = max(v, AlphaBeta(boardTemp, player, depth - 1, alpha, beta, False))
+                    alpha = max(alpha, v)
+                    if beta <= alpha:
+                        break # beta cut-off
+        return v
+    else: # minimizingPlayer
+        v = maxEvalBoard
+        for y in range(n):
+            for x in range(n):
+                if ValidMove(board, x, y, player):
+                    (boardTemp, totctr) = MakeMove(copy.deepcopy(board), x, y, player)
+                    v = min(v, AlphaBeta(boardTemp, player, depth - 1, alpha, beta, True))
+                    beta = min(beta, v)
+                    if beta <= alpha:
+                        break # alpha cut-off
+        return v
 
 def showPoints(playerTile, computerTile):
     # Mostra o score atual
@@ -302,74 +338,6 @@ def calculaPeso(node):
 		return pecas_o
 #fim função calculaPeso
 
-#Responsável por montar árvore de busca
-def buildTree(board, tile, enemyTile):
-	
-	#Pegar board no estado atual
-	boardCopy = getBoardCopy(board)
-	for x in range(8):
-		print(boardCopy[x])
-	#Criar nó para board raiz
-	root = NodeTree(boardCopy)
-	root.tile = tile
-	root.peso = calculaPeso(root)	
-	print("peso: "+str(root.peso))
-	root.profundidade = 0
-	root.pai = None
-	#pega jogadas boas jogadas
-	vmoves = getValidMoves(boardCopy, tile)
-	print("movimentos válidos pra máquina")
-	print(vmoves)
-	#
-	atual = root
-	for j in range(len(vmoves)):
-		print("para jogada "+str(j))
-		boardCopy2 = getBoardCopy(boardCopy)
-		x,y = vmoves[j]
-		print("x:"+str(x)+" y:"+str(y))
-		makeMove(boardCopy2, tile, x, y)
-		#criando novo nó
-		novo = NodeTree(boardCopy2)
-		novo.tile = tile
-		novo.peso = calculaPeso(novo)	
-		print("peso: "+str(novo.peso))
-		novo.profundidade = 0
-		novo.pai = atual
-		atual.addNode(novo)
-		print(atual.nodes)
-		for x in range(8):
-			print(boardCopy2[x])
-	#agora prevendo a jogadas do humano
-	for j in range(len(atual.nodes)):
-		atual = atual.nodes[j]
-		boardCopy3 = getBoardCopy(atual.board)
-		vmoves2 = getValidMoves(boardCopy3, tile)
-		print("movimentos válidos pra humano")
-		print(vmoves2)
-		for k in range(len(vmoves2)):
-			print("para jogada "+str(j))
-			boardCopy4 = getBoardCopy(boardCopy3)
-			x,y = vmoves2[k]
-			print("x:"+str(x)+" y:"+str(y))
-			makeMove(boardCopy4, tile, x, y)
-			#criando novo nó
-			novo = NodeTree(boardCopy4)
-			novo.tile = tile
-			novo.peso = calculaPeso(novo)	
-			print("peso: "+str(novo.peso))
-			novo.profundidade = 0
-			novo.pai = atual
-			atual.addNode(novo)
-			print(atual.nodes)
-			for x in range(8):
-				print(boardCopy4[x])
-#fim função buildTree
-
-#def minmax():
-	#monta árvore:
-
-#fim função minax
-
 #
 # Código principal
 #
@@ -406,7 +374,6 @@ while True:
                 turn = 'computer'
         else:
             # Computer's turn.
-            buildTree(mainBoard, computerTile, playerTile)
             drawBoard(mainBoard)
             showPoints(playerTile, computerTile)
             input('Pressione Enter para ver a jogada do computador.')
