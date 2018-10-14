@@ -220,7 +220,8 @@ def getComputerMove(board, computerTile):
         makeMove(dupeBoard, computerTile, x, y)
         #score = getScoreOfBoard(dupeBoard)[computerTile]
         #chama minmax
-        temp = minimaxDecision(dupeBoard, computerTile, 5, True)
+        #temp = minimaxDecision(dupeBoard, computerTile, 5, True)
+        temp = podaAlphaBeta(dupeBoard, computerTile, 10, -1, 1000, True)
         if temp > bestScore:
             bestMove = [x,y]
             bestScore = temp
@@ -242,7 +243,7 @@ def minimaxDecision(board, player, depth, maximizingPlayer):
 
     if depth == 0 or isTerminalNode(board, player):
         return getScoreOfBoard(board)[player]
-
+    
     if maximizingPlayer:
         bestValue = -1
         for y in range(n):
@@ -271,30 +272,33 @@ def minimaxDecision(board, player, depth, maximizingPlayer):
     return bestValue
 
 def podaAlphaBeta(board, player, depth, alpha, beta, maximizingPlayer):
-    if depth == 0 or IsTerminalNode(board, player):
+    if depth == 0 or isTerminalNode(board, player):
         return getScoreOfBoard(board)[player]
+    bestValue = 0
     if maximizingPlayer:
-        v = minEvalBoard
+        bestValue = -1
         for y in range(n):
             for x in range(n):
-                if ValidMove(board, x, y, player):
-                    (boardTemp, totctr) = MakeMove(copy.deepcopy(board), x, y, player)
-                    v = max(v, AlphaBeta(boardTemp, player, depth - 1, alpha, beta, False))
-                    alpha = max(alpha, v)
+                if isValidMove(board, player, x, y):
+                    newBoard = getBoardCopy(board)
+                    makeMove(newBoard, player, x, y)
+                    bestValue = max(bestValue, podaAlphaBeta(newBoard, player, depth - 1, alpha, beta, False))
+                    alpha = max(alpha, bestValue)
                     if beta <= alpha:
                         break # beta cut-off
-        return v
+        return bestValue
     else: # minimizingPlayer
-        v = maxEvalBoard
+        bestValue = 1000
         for y in range(n):
             for x in range(n):
-                if ValidMove(board, x, y, player):
-                    (boardTemp, totctr) = MakeMove(copy.deepcopy(board), x, y, player)
-                    v = min(v, AlphaBeta(boardTemp, player, depth - 1, alpha, beta, True))
-                    beta = min(beta, v)
+                if isValidMove(board, player, x, y):
+                    newBoard = getBoardCopy(board)
+                    makeMove(newBoard, player, x, y)
+                    bestValue = min(bestValue, podaAlphaBeta(newBoard, player, depth - 1, alpha, beta, True))
+                    beta = min(beta, bestValue)
                     if beta <= alpha:
                         break # alpha cut-off
-        return v
+        return bestValue
 
 def showPoints(playerTile, computerTile):
     # Mostra o score atual
