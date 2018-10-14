@@ -221,6 +221,7 @@ def getComputerMove(board, computerTile):
             bestScore = temp
     return bestMove
 #-----------------------------------------------
+
     bestScore = -1
     for x, y in possibleMoves:
         dupeBoard = getBoardCopy(board)
