@@ -243,19 +243,21 @@ def minimaxDecision(board, player, depth, maximizingPlayer):
         for y in range(n):
             for x in range(n):
                 if isValidMove(board, player, x, y):
+                    makeMove(board, player, x, y);
                     newBoard = getBoardCopy(board)
-                    v = minimaxDecision(newBoard, player, depth-1, False)
+                    #return minimaxDecision(newBoard, player, depth -1, False)
+                    v = minimaxDecision(newBoard, player, depth -1, False)
                     bestValue = max(bestValue, v)
     else:
         bestValue = 1000
         for y in range(n):
             for x in range(n):
                 if isValidMove(board, player, x, y):
+                    makeMove(board, player, x, y);
                     newBoard = getBoardCopy(board)
-                    #(boardTemp, totctr) = MakeMove(copy.deepcopy(board), x, y, player)
+                    #return minimaxDecision(newBoard, player, depth -1, True)
                     v = minimaxDecision(newBoard, player, depth -1, True)
                     bestValue = min(bestValue, v)
-                    #best
     return bestValue
 
 def showPoints(playerTile, computerTile):
