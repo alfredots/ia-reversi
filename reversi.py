@@ -215,7 +215,7 @@ def getComputerMove(board, computerTile):
         dupeBoard = getBoardCopy(board)
         makeMove(dupeBoard, computerTile, x, y)
         #score = getScoreOfBoard(dupeBoard)[computerTile]
-        temp = minimaxDecision(dupeBoard, computerTile, True)
+        temp = minimaxDecision(dupeBoard, computerTile, 5, True)
         if temp > bestScore:
             bestMove = [x,y]
             bestScore = temp
@@ -232,9 +232,9 @@ def getComputerMove(board, computerTile):
     return bestMove
 
 
-def minimaxDecision(board, player, maximizingPlayer):
+def minimaxDecision(board, player, depth, maximizingPlayer):
 
-    if isTerminalNode(board, player):
+    if depth == 0 or isTerminalNode(board, player):
         return getScoreOfBoard(board)[player]
 
     if maximizingPlayer:
@@ -244,7 +244,7 @@ def minimaxDecision(board, player, maximizingPlayer):
                 if isValidMove(board, player, x, y):
                     newBoard = getBoardCopy(board)
                     #(boardTemp, totctr) = MakeMove(copy.deepcopy(board), x, y, player)
-                    return minimaxDecision(newBoard, player, False)
+                    return minimaxDecision(newBoard, player, depth -1, False)
                     v = minimaxDecision(newBoard, player, False)
                     bestValue = max(bestValue, v)
     else:
@@ -254,7 +254,7 @@ def minimaxDecision(board, player, maximizingPlayer):
                 if isValidMove(board, player, x, y):
                     newBoard = getBoardCopy(board)
                     #(boardTemp, totctr) = MakeMove(copy.deepcopy(board), x, y, player)
-                    v = minimaxDecision(newBoard, player, True)
+                    v = minimaxDecision(newBoard, player, depth -1, True)
                     bestValue = min(bestValue, v)
                     #best
     return bestValue
