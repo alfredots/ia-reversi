@@ -264,7 +264,114 @@ def showPoints(playerTile, computerTile):
     scores = getScoreOfBoard(mainBoard)
     print('Player1: %s ponto(s). \nComputador: %s ponto(s).' % (scores[playerTile], scores[computerTile]))
 
+#
+#Minha IA
+#
+class NodeTree:
+	def __init__(self, board):
+		self.peso = 0
+		self.pai = ""
+		self.board = board
+		self.profundidade = 0
+		self.tile = ""
+		self.nodes = []
 
+	def addNode(self,node):
+		node.pai = self
+		self.nodes.append(node)
+
+#função determina peso
+def calculaPeso(node):
+    #verifica de quem é o turno
+	tile = node.tile
+	board = node.board
+    #calcula o total peças minhas quando executada a jogada
+	pecas_x = 0
+	pecas_o = 0
+	for x in range(8):
+		for y in range(8):
+			if board[x][y] == "X":
+				pecas_x = pecas_x + 1
+			else:
+				pecas_o = pecas_o + 1		
+	#retorna o peso
+	if tile == "X":
+		return pecas_x
+	else:
+		return pecas_o
+#fim função calculaPeso
+
+#Responsável por montar árvore de busca
+def buildTree(board, tile, enemyTile):
+	
+	#Pegar board no estado atual
+	boardCopy = getBoardCopy(board)
+	for x in range(8):
+		print(boardCopy[x])
+	#Criar nó para board raiz
+	root = NodeTree(boardCopy)
+	root.tile = tile
+	root.peso = calculaPeso(root)	
+	print("peso: "+str(root.peso))
+	root.profundidade = 0
+	root.pai = None
+	#pega jogadas boas jogadas
+	vmoves = getValidMoves(boardCopy, tile)
+	print("movimentos válidos pra máquina")
+	print(vmoves)
+	#
+	atual = root
+	for j in range(len(vmoves)):
+		print("para jogada "+str(j))
+		boardCopy2 = getBoardCopy(boardCopy)
+		x,y = vmoves[j]
+		print("x:"+str(x)+" y:"+str(y))
+		makeMove(boardCopy2, tile, x, y)
+		#criando novo nó
+		novo = NodeTree(boardCopy2)
+		novo.tile = tile
+		novo.peso = calculaPeso(novo)	
+		print("peso: "+str(novo.peso))
+		novo.profundidade = 0
+		novo.pai = atual
+		atual.addNode(novo)
+		print(atual.nodes)
+		for x in range(8):
+			print(boardCopy2[x])
+	#agora prevendo a jogadas do humano
+	for j in range(len(atual.nodes)):
+		atual = atual.nodes[j]
+		boardCopy3 = getBoardCopy(atual.board)
+		vmoves2 = getValidMoves(boardCopy3, tile)
+		print("movimentos válidos pra humano")
+		print(vmoves2)
+		for k in range(len(vmoves2)):
+			print("para jogada "+str(j))
+			boardCopy4 = getBoardCopy(boardCopy3)
+			x,y = vmoves2[k]
+			print("x:"+str(x)+" y:"+str(y))
+			makeMove(boardCopy4, tile, x, y)
+			#criando novo nó
+			novo = NodeTree(boardCopy4)
+			novo.tile = tile
+			novo.peso = calculaPeso(novo)	
+			print("peso: "+str(novo.peso))
+			novo.profundidade = 0
+			novo.pai = atual
+			atual.addNode(novo)
+			print(atual.nodes)
+			for x in range(8):
+				print(boardCopy4[x])
+#fim função buildTree
+
+#def minmax():
+	#monta árvore:
+
+#fim função minax
+
+#
+# Código principal
+#
 print('Welcome to Reversi!')
 while True:
     # Reseta o jogo e o tabuleiro
@@ -298,6 +405,7 @@ while True:
                 turn = 'computer'
         else:
             # Computer's turn.
+            buildTree(mainBoard, computerTile, playerTile)
             drawBoard(mainBoard)
             showPoints(playerTile, computerTile)
             input('Pressione Enter para ver a jogada do computador.')
