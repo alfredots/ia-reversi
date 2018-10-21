@@ -239,8 +239,55 @@ def getComputerMove(board, computerTile):
             bestMove = [x, y]
             bestScore = score
     return bestMove
+#--------------------------------------------
+def min_play(board, player, depth):
+  if isTerminalNode(board, player) or depth == 0:
+    return getScoreOfBoard(board)[player]
+  moves = getValidMoves(board, player)
+  best_score = float('inf')
+  opp = opponent(player)
+  for x, y in moves:
+    newBoard = getBoardCopy(board)
+    makeMove(newBoard, player, x, y)
+    #drawBoard(newBoard)
+    score = max_play(newBoard, opp, depth-1)
+    if score < best_score:
+      best_move = [x, y]
+      best_score = score
+  return best_score
+
+def max_play(board, player, depth):
+  if isTerminalNode(board, player) or depth == 0:
+    return getScoreOfBoard(board)[player]
+  moves = getValidMoves(board, player)
+  best_score = float('inf')
+  opp = opponent(player)
+  for x, y in moves:
+    newBoard = getBoardCopy(board)
+    makeMove(newBoard, player, x, y)
+    #drawBoard(newBoard)
+    score = min_play(newBoard, opp, depth-1)
+    if score > best_score:
+      best_move = move
+      best_score = score
+  return best_score
 
 
+def minimax(board, player, depth):
+  moves = getValidMoves(board, player)
+  best_move = moves[0]
+  best_score = float('-inf')
+  opp = opponent(player)
+  for x, y in moves:
+    newBoard = getBoardCopy(board)
+    makeMove(newBoard, player, x, y)
+    #drawBoard(newBoard)
+    score = min_play(newBoard, opp, depth -1)
+    if score > best_score:
+      best_move = [x, y]
+      best_score = score
+  return best_move
+#-------------------------------------------------------
 def minimaxDecision(board, player, depth, maximizingPlayer):
 
     if depth == 0 or isTerminalNode(board, player):
