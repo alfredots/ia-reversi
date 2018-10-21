@@ -239,7 +239,9 @@ def getComputerMove(board, computerTile):
             bestMove = [x, y]
             bestScore = score
     return bestMove
+
 #--------------------------------------------
+
 def min_play(board, player, depth):
   if isTerminalNode(board, player) or depth == 0:
     return getScoreOfBoard(board)[player]
@@ -287,7 +289,9 @@ def minimax(board, player, depth):
       best_move = [x, y]
       best_score = score
   return best_move
+
 #-------------------------------------------------------
+
 def minimaxDecision(board, player, depth, maximizingPlayer):
 
     if depth == 0 or isTerminalNode(board, player):
