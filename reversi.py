@@ -171,9 +171,9 @@ def getBoardCopy(board):
     return dupeBoard
 
 
-def isOnCorner(x, y):
+def goodMove(x, y):
     # Retorna True se a posição x, y é um dos cantos do tabuleiro
-    return (x == 0 and y == 0) or (x == 7 and y == 0) or (x == 0 and y == 7) or (x == 7 and y == 7)
+    return (x == 0 and y == 0) or (x == 7 and y == 0) or (x == 0 and y == 7) or (x == 7 and y == 7) or (x == 0 and y == 2) or (x == 0 and y == 3) or (x == 0 and y == 4) or (x == 0 and y == 5) or (x == 2 and y == 0) or (x == 3 and y == 0) or (x == 4 and y == 0) or (x == 5 and y == 0) or (x == 7 and y == 2) or (x == 7 and y == 3) or (x == 7 and y == 4) or (x == 7 and y == 5) or (x == 2 and y == 7) or (x == 3 and y == 7) or (x == 4 and y == 7) or (x == 5 and y == 7)
 
 
 def getPlayerMove(board, playerTile):
@@ -206,8 +206,10 @@ def getComputerMove(board, computerTile):
     # randomiza a ordem dos possíveis movimentos
     random.shuffle(possibleMoves)
     # se for possivel, joga no canto
+    print(possibleMoves)
     for x, y in possibleMoves:
-        if isOnCorner(x, y):
+        if goodMove(x, y):
+            print("esse foi um good move x:"+str(x)+" y:"+str(y))
             return [x, y]
     # Escolhe a jogada que resulta em mais pontos
 #----------------------------------------------	
@@ -305,7 +307,6 @@ def minimaxDecision(board, player, depth, maximizingPlayer):
             newBoard = getBoardCopy(board)
             #faz previsão de jogada
             makeMove(newBoard, player, x, y)
-            drawBoard(newBoard)
             #return minimaxDecision(newBoard, player, depth -1, False)
             #recursão
             v = minimaxDecision(newBoard, player, depth -1, False)
@@ -318,7 +319,6 @@ def minimaxDecision(board, player, depth, maximizingPlayer):
         for x,y in moves:
             newBoard = getBoardCopy(board)
             makeMove(newBoard, playerTile, x, y)
-            drawBoard(newBoard)
             #return minimaxDecision(newBoard, player, depth -1, True)
             v = minimaxDecision(newBoard, player, depth -1, True)
             #retorna o menor valor
@@ -359,42 +359,6 @@ def showPoints(playerTile, computerTile):
     scores = getScoreOfBoard(mainBoard)
     print('Player1: %s ponto(s). \nComputador: %s ponto(s).' % (scores[playerTile], scores[computerTile]))
 
-#
-#Minha IA
-#
-class NodeTree:
-	def __init__(self, board):
-		self.peso = 0
-		self.pai = ""
-		self.board = board
-		self.profundidade = 0
-		self.tile = ""
-		self.nodes = []
-
-	def addNode(self,node):
-		node.pai = self
-		self.nodes.append(node)
-
-#função determina peso
-def calculaPeso(node):
-    #verifica de quem é o turno
-	tile = node.tile
-	board = node.board
-    #calcula o total peças minhas quando executada a jogada
-	pecas_x = 0
-	pecas_o = 0
-	for x in range(8):
-		for y in range(8):
-			if board[x][y] == "X":
-				pecas_x = pecas_x + 1
-			else:
-				pecas_o = pecas_o + 1		
-	#retorna o peso
-	if tile == "X":
-		return pecas_x
-	else:
-		return pecas_o
-#fim função calculaPeso
 
 #
 # Código principal
