@@ -175,7 +175,13 @@ def goodMove(x, y):
     # Retorna True se a posição x, y é um dos cantos do tabuleiro
     return (x == 0 and y == 0) or (x == 7 and y == 0) or (x == 0 and y == 7) or (x == 7 and y == 7) or (x == 0 and y == 2) or (x == 0 and y == 3) or (x == 0 and y == 4) or (x == 0 and y == 5) or (x == 2 and y == 0) or (x == 3 and y == 0) or (x == 4 and y == 0) or (x == 5 and y == 0) or (x == 7 and y == 2) or (x == 7 and y == 3) or (x == 7 and y == 4) or (x == 7 and y == 5) or (x == 2 and y == 7) or (x == 3 and y == 7) or (x == 4 and y == 7) or (x == 5 and y == 7)
 
-
+def opponent(player):
+    if player == computerTile:
+        return playerTile
+    else:
+        return computerTile
+    
+ 
 def getPlayerMove(board, playerTile):
     # Permite que o player insira sua jogada
     DIGITS1TO8 = '1 2 3 4 5 6 7 8'.split()
@@ -206,43 +212,37 @@ def getComputerMove(board, computerTile):
     # randomiza a ordem dos possíveis movimentos
     random.shuffle(possibleMoves)
     # se for possivel, joga no canto
-    print(possibleMoves)
+
     for x, y in possibleMoves:
         if goodMove(x, y):
-            print("esse foi um good move x:"+str(x)+" y:"+str(y))
+            print("esse foi um good move x:" + str(x) + " y:" + str(y))
+            return [x, y]
+
+    for x, y in possibleMoves:
+        if isOnCorner(x, y):
             return [x, y]
     # Escolhe a jogada que resulta em mais pontos
-#----------------------------------------------	
     bestScore = -1
-    #itera sobre as jogadas possiveís
+    bestMove = []
+
+    # itera sobre as jogadas possiveís
     for x, y in possibleMoves:
-        #cria cópia do tabuleiro
+        # cria cópia do tabuleiro
         dupeBoard = getBoardCopy(board)
-        #faz primeira previsão do tabuleiro ao jogar
+        # faz primeira previsão do tabuleiro ao jogar
         makeMove(dupeBoard, computerTile, x, y)
-        #score = getScoreOfBoard(dupeBoard)[computerTile]
-        #chama minmax
-        print("desenhando previsoes")
-        temp = minimaxDecision(dupeBoard, computerTile, 2, True)
-        print("saindo das previsoes")
-        #temp = podaAlphaBeta(dupeBoard, computerTile, 10, -1, 1000, True)
+        # chama minmax
+        #temp = minimaxDecision(dupeBoard, computerTile, 5, True)
+
+        #bestMove = minimax(board, computerTile, 15)
+        alpha = float('-inf')
+        beta = float('inf')
+        temp = podaAlphaBetaNEW(board, computerTile, alpha, beta, 5, True)
+
         if temp > bestScore:
-            bestMove = [x,y]
+            bestMove = [x, y]
             bestScore = temp
     return bestMove
-#-----------------------------------------------
-
-    bestScore = -1
-    for x, y in possibleMoves:
-        dupeBoard = getBoardCopy(board)
-        makeMove(dupeBoard, computerTile, x, y)
-        score = getScoreOfBoard(dupeBoard)[computerTile]
-        if score > bestScore:
-            bestMove = [x, y]
-            bestScore = score
-    return bestMove
-
-#--------------------------------------------
 
 def min_play(board, player, depth):
   if isTerminalNode(board, player) or depth == 0:
@@ -292,39 +292,6 @@ def minimax(board, player, depth):
       best_score = score
   return best_move
 
-#-------------------------------------------------------
-
-def minimaxDecision(board, player, depth, maximizingPlayer):
-
-    if depth == 0 or isTerminalNode(board, player):
-        return getScoreOfBoard(board)[player]
-    
-    if maximizingPlayer:
-        bestValue = -1
-        moves = getValidMoves(board, player)
-        for x,y in moves:
-            #criar cópia do tabuleiro
-            newBoard = getBoardCopy(board)
-            #faz previsão de jogada
-            makeMove(newBoard, player, x, y)
-            #return minimaxDecision(newBoard, player, depth -1, False)
-            #recursão
-            v = minimaxDecision(newBoard, player, depth -1, False)
-            #retorna o maior valor
-            bestValue = max(bestValue, v)    
-    
-    else:
-        bestValue = 1000
-        moves = getValidMoves(board, playerTile)
-        for x,y in moves:
-            newBoard = getBoardCopy(board)
-            makeMove(newBoard, playerTile, x, y)
-            #return minimaxDecision(newBoard, player, depth -1, True)
-            v = minimaxDecision(newBoard, player, depth -1, True)
-            #retorna o menor valor
-            bestValue = min(bestValue, v)
-    return bestValue
-
 def podaAlphaBeta(board, player, depth, alpha, beta, maximizingPlayer):
     if depth == 0 or isTerminalNode(board, player):
         return getScoreOfBoard(board)[player]
@@ -359,6 +326,34 @@ def showPoints(playerTile, computerTile):
     scores = getScoreOfBoard(mainBoard)
     print('Player1: %s ponto(s). \nComputador: %s ponto(s).' % (scores[playerTile], scores[computerTile]))
 
+def podaAlphaBetaNEW(board, player, alpha, beta, depth, maximizingPlayer):
+    if depth == 0 or isTerminalNode(board, player):
+        return getScoreOfBoard(board)[player]
+
+    moves = getValidMoves(board, player)
+    opp = opponent(player)
+
+    if maximizingPlayer:
+        value = float('-inf')
+        for x,y in moves:
+            newBoard = getBoardCopy(board)
+            makeMove(newBoard, player, x, y)
+            value = max(value, podaAlphaBeta(newBoard, opp, alpha, beta, depth-1, False))
+            alpha = max(alpha, value)
+            if alpha > beta:
+                break
+        return value
+
+    else:
+        value = float('inf')
+        for x, y in moves:
+            newBoard = getBoardCopy(board)
+            makeMove(newBoard, player, x, y)
+            value = min(value, podaAlphaBeta(newBoard, opp, alpha, beta, depth-1, True))
+            beta = min(beta, value)
+            if alpha > beta:
+                break
+        return value
 
 #
 # Código principal
@@ -418,3 +413,48 @@ while True:
         print('Empate!')
     if not playAgain():
         break
+ #-------------------------------------------------------------------------
+ def minimaxDecision(board, player, depth, maximizingPlayer):
+
+    if depth == 0 or isTerminalNode(board, player):
+        return getScoreOfBoard(board)[player]
+    
+    if maximizingPlayer:
+        bestValue = -1
+        moves = getValidMoves(board, player)
+        for x,y in moves:
+            #criar cópia do tabuleiro
+            newBoard = getBoardCopy(board)
+            #faz previsão de jogada
+            makeMove(newBoard, player, x, y)
+            #return minimaxDecision(newBoard, player, depth -1, False)
+            #recursão
+            v = minimaxDecision(newBoard, player, depth -1, False)
+            #retorna o maior valor
+            bestValue = max(bestValue, v)    
+    
+    else:
+        bestValue = 1000
+        moves = getValidMoves(board, playerTile)
+        for x,y in moves:
+            newBoard = getBoardCopy(board)
+            makeMove(newBoard, playerTile, x, y)
+            #return minimaxDecision(newBoard, player, depth -1, True)
+            v = minimaxDecision(newBoard, player, depth -1, True)
+            #retorna o menor valor
+            bestValue = min(bestValue, v)
+    return bestValue
+
+boardHeuristics = [
+    0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
+    0, 100, -10,  10,   3,   3,  10, -10, 100,   0,
+    0, -10, -20,  -3,  -3,  -3,  -3, -20, -10,   0,
+    0,  10,  -3,   8,   1,   1,   8,  -3,  10,   0,
+    0,   3,  -3,   1,   1,   1,   1,  -3,   3,   0,
+    0,   3,  -3,   1,   1,   1,   1,  -3,   3,   0,
+    0,  10,  -3,   8,   1,   1,   8,  -3,  10,   0,
+    0, -10, -20,  -3,  -3,  -3,  -3, -20, -10,   0,
+    0, 100, -10,  10,   3,   3,  10, -10, 100,   0,
+    0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
+]
+
