@@ -215,11 +215,6 @@ def getComputerMove(board, computerTile):
 
     for x, y in possibleMoves:
         if goodMove(x, y):
-            print("esse foi um good move x:" + str(x) + " y:" + str(y))
-            return [x, y]
-
-    for x, y in possibleMoves:
-        if isOnCorner(x, y):
             return [x, y]
     # Escolhe a jogada que resulta em mais pontos
     bestScore = -1
@@ -235,9 +230,9 @@ def getComputerMove(board, computerTile):
         #temp = minimaxDecision(dupeBoard, computerTile, 5, True)
 
         #bestMove = minimax(board, computerTile, 15)
-        alpha = float('-inf')
-        beta = float('inf')
-        temp = podaAlphaBetaNEW(board, computerTile, alpha, beta, 5, True)
+        alpha = -1
+        beta = 1
+        temp = podaAlphaBetaNEW(dupeBoard, playerTile, alpha, beta, 5, False)
 
         if temp > bestScore:
             bestMove = [x, y]
@@ -292,35 +287,6 @@ def minimax(board, player, depth):
       best_score = score
   return best_move
 
-def podaAlphaBeta(board, player, depth, alpha, beta, maximizingPlayer):
-    if depth == 0 or isTerminalNode(board, player):
-        return getScoreOfBoard(board)[player]
-    bestValue = 0
-    if maximizingPlayer:
-        bestValue = -1
-        for y in range(n):
-            for x in range(n):
-                if isValidMove(board, player, x, y):
-                    newBoard = getBoardCopy(board)
-                    makeMove(newBoard, player, x, y)
-                    bestValue = max(bestValue, podaAlphaBeta(newBoard, player, depth - 1, alpha, beta, False))
-                    alpha = max(alpha, bestValue)
-                    if beta <= alpha:
-                        break # beta cut-off
-        return bestValue
-    else: # minimizingPlayer
-        bestValue = 1000
-        for y in range(n):
-            for x in range(n):
-                if isValidMove(board, player, x, y):
-                    newBoard = getBoardCopy(board)
-                    makeMove(newBoard, player, x, y)
-                    bestValue = min(bestValue, podaAlphaBeta(newBoard, player, depth - 1, alpha, beta, True))
-                    beta = min(beta, bestValue)
-                    if beta <= alpha:
-                        break # alpha cut-off
-        return bestValue
-
 def showPoints(playerTile, computerTile):
     # Mostra o score atual
     scores = getScoreOfBoard(mainBoard)
@@ -334,24 +300,32 @@ def podaAlphaBetaNEW(board, player, alpha, beta, depth, maximizingPlayer):
     opp = opponent(player)
 
     if maximizingPlayer:
-        value = float('-inf')
+        value = -1
         for x,y in moves:
+            if goodMove(x, y):
+                return getScoreOfBoard(board)[player]
+            
             newBoard = getBoardCopy(board)
             makeMove(newBoard, player, x, y)
-            value = max(value, podaAlphaBeta(newBoard, opp, alpha, beta, depth-1, False))
+            value = max(value, podaAlphaBetaNEW(newBoard, opp, alpha, beta, depth-1, False))
             alpha = max(alpha, value)
             if alpha > beta:
+                print("poda alpha")
                 break
         return value
 
     else:
-        value = float('inf')
+        value = 1
         for x, y in moves:
+            if goodMove(x, y):
+                return getScoreOfBoard(board)[player]
+
             newBoard = getBoardCopy(board)
             makeMove(newBoard, player, x, y)
-            value = min(value, podaAlphaBeta(newBoard, opp, alpha, beta, depth-1, True))
+            value = min(value, podaAlphaBetaNEW(newBoard, opp, alpha, beta, depth-1, True))
             beta = min(beta, value)
             if alpha > beta:
+                print("poda beta")
                 break
         return value
 
@@ -414,7 +388,7 @@ while True:
     if not playAgain():
         break
  #-------------------------------------------------------------------------
- def minimaxDecision(board, player, depth, maximizingPlayer):
+def minimaxDecision(board, player, depth, maximizingPlayer):
 
     if depth == 0 or isTerminalNode(board, player):
         return getScoreOfBoard(board)[player]
