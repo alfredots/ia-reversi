@@ -173,7 +173,10 @@ def getBoardCopy(board):
 
 def goodMove(x, y):
     # Retorna True se a posição x, y é um dos cantos do tabuleiro
-    return (x == 0 and y == 0) or (x == 7 and y == 0) or (x == 0 and y == 7) or (x == 7 and y == 7) or (x == 0 and y == 2) or (x == 0 and y == 3) or (x == 0 and y == 4) or (x == 0 and y == 5) or (x == 2 and y == 0) or (x == 3 and y == 0) or (x == 4 and y == 0) or (x == 5 and y == 0) or (x == 7 and y == 2) or (x == 7 and y == 3) or (x == 7 and y == 4) or (x == 7 and y == 5) or (x == 2 and y == 7) or (x == 3 and y == 7) or (x == 4 and y == 7) or (x == 5 and y == 7)
+    return (x == 0 and y == 0) or (x == 7 and y == 0) or (x == 0 and y == 7) or (x == 7 and y == 7)
+
+def badMove(x, y):
+    return (x == 0 and y == 1) or (x == 1 and y == 1) or (x == 1 and y == 0) or (x == 0 and y == 6) or (x == 1 and y == 6) or (x == 1 and y == 7) or (x == 6 and y == 0) or (x == 6 and y == 1) or (x == 7 and y == 1) or (x == 6 and y == 6) or (x == 6 and y == 7) or (x == 6 and y == 7)
 
 def opponent(player):
     if player == computerTile:
@@ -212,7 +215,15 @@ def getComputerMove(board, computerTile):
     # randomiza a ordem dos possíveis movimentos
     random.shuffle(possibleMoves)
     # se for possivel, joga no canto
-
+    print("antes da bad move")
+    print(possibleMoves)
+    for x, y in possibleMoves:
+        if len(possibleMoves) > 1:
+            if badMove(x,y):
+                print("removeu um bad move")
+                possibleMoves.remove([x,y])
+    print("depois da bad move")
+    print(possibleMoves)
     for x, y in possibleMoves:
         if goodMove(x, y):
             return [x, y]
@@ -303,14 +314,15 @@ def podaAlphaBetaNEW(board, player, alpha, beta, depth, maximizingPlayer):
         value = -1
         for x,y in moves:
             if goodMove(x, y):
-                return getScoreOfBoard(board)[player]
+                newBoard = getBoardCopy(board)
+                makeMove(newBoard, player, x, y)
+                return getScoreOfBoard(newBoard)[player]
             
             newBoard = getBoardCopy(board)
             makeMove(newBoard, player, x, y)
             value = max(value, podaAlphaBetaNEW(newBoard, opp, alpha, beta, depth-1, False))
             alpha = max(alpha, value)
             if alpha > beta:
-                print("poda alpha")
                 break
         return value
 
@@ -318,14 +330,15 @@ def podaAlphaBetaNEW(board, player, alpha, beta, depth, maximizingPlayer):
         value = 1
         for x, y in moves:
             if goodMove(x, y):
-                return getScoreOfBoard(board)[player]
+                newBoard = getBoardCopy(board)
+                makeMove(newBoard, player, x, y)
+                return getScoreOfBoard(newBoard)[player]
 
             newBoard = getBoardCopy(board)
             makeMove(newBoard, player, x, y)
             value = min(value, podaAlphaBetaNEW(newBoard, opp, alpha, beta, depth-1, True))
             beta = min(beta, value)
             if alpha > beta:
-                print("poda beta")
                 break
         return value
 
